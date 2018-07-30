@@ -30,15 +30,12 @@ func init() {
 func main() {
 	flag.Parse()
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
-		RenderTemplate(w, r, "index/home", nil)
-	}) // test drive.
-	mux.Handle("/assets/",
-		http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
+	router := NewRouter()
+	router.Handle("GET", "/", HandleHome)
+	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	log.Printf("Serving gophr at port %s\n", PORT)
-	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), mux)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), router)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
