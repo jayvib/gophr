@@ -32,6 +32,7 @@ func main() {
 
 	router := NewRouter()
 	router.Handle("GET", "/", HandleHome)
+	router.Handle("GET", "/register", HandleNewUser)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	log.Printf("Serving gophr at port %s\n", PORT)
