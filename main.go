@@ -32,7 +32,9 @@ func main() {
 
 	router := NewRouter()
 	router.Handle("GET", "/", HandleHome)
-	router.Handle("GET", "/register", HandleNewUser)
+	router.Handle("GET", "/register", HandleNewUserPage) // user to display the registration page
+	router.Handle("POST", "/register", HandleCreateUser) // use to register the user to the system
+
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	log.Printf("Serving gophr at port %s\n", PORT)
