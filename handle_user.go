@@ -26,3 +26,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 	}
 	http.Redirect(w, r, "/?flash=User+created", http.StatusFound)
 }
+
+func HandleLoginUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+	
+}

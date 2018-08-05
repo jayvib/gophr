@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -15,6 +16,10 @@ type Session struct {
 	ID     string
 	UserID string
 	Expiry time.Time
+}
+
+func (s *Session) IsExpired() bool {
+	return s.Expiry.Before(time.Now())
 }
 
 func NewSession(w http.ResponseWriter) *Session {
@@ -31,4 +36,44 @@ func NewSession(w http.ResponseWriter) *Session {
 	}
 	http.SetCookie(w, &cookie)
 	return session
+}
+
+func RequestSession(r *http.Request) *Session {
+	cookie, err := r.Cookie(sessionCookieName)
+	if err != nil {
+		return nil
+	}
+	session, err := globalSessionStore.Find(cookie.Value)
+	if err != nil {
+		return nil
+	}
+	if session == nil {
+		return nil
+	}
+	if session.IsExpired() {
+		globalSessionStore.Delete(session)
+		return nil
+	}
+	return session
+}
+
+func RequestUser(r *http.Request) *User {
+	session := RequestSession(r)
+	if session == nil || session.UserID == "" {
+		return nil
+	}
+	user, err := globalUserStore.Find(session.UserID)
+	if err != nil {
+		return nil // just redirect or something.
+	}
+	return user
+}
+
+func RequireLogin(w http.ResponseWriter, r *http.Request) {
+	if RequestUser(r) != nil {
+		return
+	}
+	query := url.Values{}
+	query.Add("next", url.QueryEscape(r.URL.String()))
+	http.Redirect(w, r, "/login?"+query.Encode(), http.StatusFound)
 }
