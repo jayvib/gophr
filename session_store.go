@@ -6,6 +6,8 @@ var (
 	errNotImplemented = errors.New("not implemented yet")
 )
 
+// SessionStore is a generic session storage which can be implemented
+// in various ways
 type SessionStore interface {
 	Find(string) (*Session, error)
 	Save(*Session) error
