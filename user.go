@@ -57,4 +57,27 @@ func NewUser(username, email, password string) (User, error) {
 	return user, nil
 }
 
+func FindUser(username, password string) (*User, error) {
+	user := &User{
+		Username: username,
+	}
+
+	existingUser, err := globalUserStore.FindByUsername(username)
+	if err != nil {
+		return user, err
+	}
+
+	if existingUser == nil {
+		return user, errCredentialsIncorrect
+	}
+
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(existingUser.HashedPassword),
+		[]byte(password),
+	); err != nil {
+		return user, errCredentialsIncorrect
+	}
+	return existingUser, nil
+}
+
 

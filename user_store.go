@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"strings"
-	"os"
-	"log"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
 )
 
 var globalUserStore UserStore
@@ -29,7 +29,7 @@ func init() {
 func NewFileUserStore(filename string) (*FileUserStore, error) {
 	fileUserStore := &FileUserStore{
 		filename: filename,
-		Users: make(map[string]User),
+		Users:    make(map[string]User),
 	}
 
 	file, err := os.Open(filename)
@@ -44,7 +44,7 @@ func NewFileUserStore(filename string) (*FileUserStore, error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(content, fileUserStore)
+	err = json.Unmarshal(content, &fileUserStore.Users)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func NewFileUserStore(filename string) (*FileUserStore, error) {
 
 type FileUserStore struct {
 	filename string
-	Users map[string]User
+	Users    map[string]User
 }
 
 func (store *FileUserStore) Save(user User) error {

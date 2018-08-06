@@ -16,7 +16,7 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 		r.FormValue("password"),
 	)
 	if err != nil {
-		if IsValidation(err) {
+		if IsValidationError(err) {
 			RenderTemplate(w, r, "users/new", map[string]interface{}{
 				"Error": err,
 				"User": user,

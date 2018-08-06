@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
-	"os"
 	"flag"
-	"net/http"
+	"fmt"
 	"log"
+	"net/http"
+	"os"
 )
 
 var (
@@ -34,8 +34,15 @@ func main() {
 	router.Handle("GET", "/", HandleHome)
 	router.Handle("GET", "/register", HandleNewUserPage) // user to display the registration page
 	router.Handle("POST", "/register", HandleCreateUser) // use to register the user to the system
-
+	router.Handle("GET", "/login", HandleNewSessionPage)
+	router.Handle("POST", "/login", HandleSessionCreate)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+
+	// secureRouter := NewRouter()
+	// secureRouter.Handle("GET", "/sign-out", HandleSessionDestroy)
+	// securedMiddleware := NewMiddleware(
+	// 	http.HandleFunc(RequireLogin),
+	// )
 
 	log.Printf("Serving gophr at port %s\n", PORT)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), router)

@@ -37,7 +37,12 @@ var errorTemplate = `
 
 // RenderTemplate is an helper function for displaying the html template.
 // It will use a template.FuncMap to load the content of the defined HTML template.
-func RenderTemplate(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, name string, data map[string]interface{}) {
+	if data == nil {
+		data = map[string]interface{}{}
+	}
+	data["CurrentUser"] = RequestUser(r)
+	data["Flash"] = r.URL.Query().Get("flash")
 	funcs := template.FuncMap{
 		"yield": func() (template.HTML, error) {
 			buf := bytes.NewBuffer(nil)
