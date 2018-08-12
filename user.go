@@ -4,21 +4,21 @@ import "golang.org/x/crypto/bcrypt"
 
 const (
 	passwordLength = 8
-	hashCost = 10
-	userIDLength = 10
+	hashCost       = 10
+	userIDLength   = 10
 )
 
 type User struct {
-	ID string
-	Username string
-	Email string
+	ID             string
+	Username       string
+	Email          string
 	HashedPassword string
 }
 
 func NewUser(username, email, password string) (User, error) {
 	user := User{
 		Username: username,
-		Email: email,
+		Email:    email,
 	}
 	if username == "" {
 		return user, errNoUsername
@@ -86,8 +86,31 @@ func UpdateUser(user *User, email, currentPassword, newPassword string) (User, e
 
 	existingUser, err := globalUserStore.FindByEmail(email)
 	if err != nil {
-		if IsValidationError(err) {
-			
-		}
+		return out, err
 	}
+	if existingUser != nil && existingUser.ID != user.ID {
+		return out, errEmailExists
+	}
+	user.Email = email
+	if currentPassword == "" {
+		return out, nil
+	}
+	if bcrypt.CompareHashAndPassword(
+		[]byte(user.HashedPassword),
+		[]byte(currentPassword),
+	) != nil {
+		return out, errPasswordIncorrect
+	}
+	if newPassword == "" {
+		return out, errNoPassword
+	}
+	if len(newPassword) < passwordLength {
+		return out, errPasswordTooShort
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), hashCost)
+	if err != nil {
+		return out, err
+	}
+	user.HashedPassword = string(hashedPassword)
+	return out, nil
 }
