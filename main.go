@@ -36,6 +36,9 @@ func main() {
 	router.Handle("POST", "/register", HandleCreateUser) // use to register the user to the system
 	router.Handle("GET", "/login", HandleNewSessionPage)
 	router.Handle("POST", "/login", HandleSessionCreate)
+	router.Handle("GET", "/sign-out", HandleSessionDestroy)
+	router.Handle("GET", "/account", HandleUserEdit)
+	router.Handle("POST", "/account", HandleUserUpdate)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	// secureRouter := NewRouter()

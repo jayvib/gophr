@@ -80,4 +80,14 @@ func FindUser(username, password string) (*User, error) {
 	return existingUser, nil
 }
 
+func UpdateUser(user *User, email, currentPassword, newPassword string) (User, error) {
+	out := *user
+	out.Email = email
 
+	existingUser, err := globalUserStore.FindByEmail(email)
+	if err != nil {
+		if IsValidationError(err) {
+			
+		}
+	}
+}
