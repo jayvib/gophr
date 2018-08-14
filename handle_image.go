@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/net/trace"
 )
 
 func HandleImageNew(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
