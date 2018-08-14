@@ -25,6 +25,28 @@ func init() {
 	}
 
 	flag.StringVar(&PORT, "port", "8080", "The port of gophr app.")
+
+	// User Store
+	store, err := NewFileUserStore("./data/users.json")
+	if err != nil {
+		log.Fatalf(fmt.Sprintf("Error creating user store: %s", err))
+	}
+	globalUserStore = store
+
+	// Session Store
+	sessionStore, err := NewFileSessionStore("./data/sessions.json")
+	if err != nil {
+		panic(err)
+	}
+	globalSessionStore = sessionStore
+
+	db, err := NewMySQLDB("root:mysql123@tcp(127.0.0.1:3306)/gophr")
+	if err != nil {
+		panic(err)
+	}
+	globalMySQLDB = db
+
+	globalImageStore = NewDBImageStore()
 }
 
 func main() {
@@ -39,6 +61,8 @@ func main() {
 	router.Handle("GET", "/sign-out", HandleSessionDestroy)
 	router.Handle("GET", "/account", HandleUserEdit)
 	router.Handle("POST", "/account", HandleUserUpdate)
+	router.Handle("GET", "/images/new", HandleImageNew)
+	router.Handle("POST", "/images/new", HandleImageCreate)
 	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
 
 	// secureRouter := NewRouter()

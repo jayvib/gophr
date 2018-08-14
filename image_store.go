@@ -2,8 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"errors"
 )
+
+const pageSize = 25
 
 var globalImageStore ImageStore
 
@@ -58,9 +59,70 @@ func (store *DBImageStore) Find(id string) (*Image, error) {
 }
 
 func (store *DBImageStore) FindAll(offset int) ([]Image, error) {
-	return nil, errors.New("not implemented yet")
+	rows, err := store.db.Query(
+		`
+		SELECT id, user_id, name, location, description, size, created_at
+		FROM images
+		ORDER BY created_at DESC
+		LIMIT ?
+		OFFSET ?
+		`,
+		pageSize,
+		offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	images := make([]Image, 0)
+	for rows.Next() {
+		var image Image
+		err = rows.Scan(
+			&image.ID,
+			&image.UserID,
+			&image.Location,
+			&image.Description,
+			&image.Size,
+			&image.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, image)
+	}
+	return images, nil
 }
 
 func (store *DBImageStore) FindAllByUser(user *User, offset int) ([]Image, error) {
-	return nil, errors.New("not implemented yet")
+	rows, err := store.db.Query(
+		`
+		SELECT id, user_id, location, description, size, created_at
+		FROM images
+		WHERE user_id = ?
+		ORDER BY created_at DESC
+		LIMIT ?
+		OFFSET ?
+		`,
+		user.ID,
+		pageSize,
+		offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	images := make([]Image, 0)
+	for rows.Next() {
+		var image Image
+		err = rows.Scan(
+			&image.ID,
+			&image.UserID,
+			&image.Location,
+			&image.Description,
+			&image.Size,
+			&image.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return images, nil
 }

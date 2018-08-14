@@ -8,14 +8,6 @@ import (
 
 var globalMySQLDB *sql.DB
 
-func init() {
-	db, err := NewMySQLDB("root:mysql123@tcp(127.0.0.1:3306)/gophr")
-	if err != nil {
-		panic(err)
-	}
-	globalMySQLDB = db
-}
-
 func NewMySQLDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("mysql", dsn+"?parseTime=true")
 	if err != nil {

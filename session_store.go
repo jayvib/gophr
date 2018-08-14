@@ -13,14 +13,6 @@ var (
 
 var globalSessionStore SessionStore
 
-func init() {
-	sessionStore, err := NewFileSessionStore("./data/sessions.json")
-	if err != nil {
-		panic(err)
-	}
-	globalSessionStore = sessionStore
-}
-
 // SessionStore is a generic session storage which can be implemented
 // in various ways.
 type SessionStore interface {

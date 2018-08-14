@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -16,14 +14,6 @@ type UserStore interface {
 	FindByEmail(string) (*User, error)
 	FindByUsername(string) (*User, error)
 	Save(User) error
-}
-
-func init() {
-	store, err := NewFileUserStore("./data/users.json")
-	if err != nil {
-		log.Fatalf(fmt.Sprintf("Error creating user store: %s", err))
-	}
-	globalUserStore = store
 }
 
 func NewFileUserStore(filename string) (*FileUserStore, error) {
