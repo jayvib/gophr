@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"fmt"
 )
 
 const (
@@ -71,8 +72,10 @@ func RequestUser(r *http.Request) *User {
 
 func RequireLogin(w http.ResponseWriter, r *http.Request) {
 	if RequestUser(r) != nil {
+		fmt.Println("has an existing session")
 		return
 	}
+	fmt.Println("need to login!")
 	query := url.Values{}
 	query.Add("next", url.QueryEscape(r.URL.String()))
 	http.Redirect(w, r, "/login?"+query.Encode(), http.StatusFound)

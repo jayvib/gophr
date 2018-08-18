@@ -7,12 +7,12 @@
                         {{.}}
                     </div>
             {{end}}
-            <form action="/account" method="POST">
+            <form action="/private/account" method="POST">
                 <div class="form-group">
                     <label for="newEmail">Email</label>
                     <input type="text" name="email" value="{{.User.Email}}" id="newEmail" class="form-control">
                 </div>
-                <h2>Chane Password <small>optional</small></h2>
+                <h2>Change Password <small>optional</small></h2>
                 <div class="form-group">
                     <label for="currentPassword">Current Password</label>
                     <input type="password" name="currentPassword" id="currentPassword" class="form-control">

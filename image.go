@@ -78,7 +78,7 @@ func (i *Image) CreateFromURL(imageURL string) error {
 func (i *Image) CreateFromFile(file multipart.File, headers *multipart.FileHeader) error {
 	i.Name = headers.Filename
 	i.Location = i.ID + filepath.Ext(i.Name)
-	savedFile, err := os.Create("./data/images" + i.Location)
+	savedFile, err := os.Create("./data/images/" + i.Location)
 	if err != nil {
 		return err
 	}

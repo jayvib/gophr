@@ -3,10 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
-)
+	)
 
-func HandleSessionDestroy(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleSessionDestroy(w http.ResponseWriter, r *http.Request) {
 	session := RequestSession(r)
 	if session != nil {
 		err := globalSessionStore.Delete(session)
@@ -17,14 +16,14 @@ func HandleSessionDestroy(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	RenderTemplate(w, r, "sessions/destroy", nil)
 }
 
-func HandleNewSessionPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleNewSessionPage(w http.ResponseWriter, r *http.Request) {
 	next := r.URL.Query().Get("next")
 	RenderTemplate(w, r, "sessions/new", map[string]interface{}{
 		"Next": next,
 	})
 }
 
-func HandleSessionCreate(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleSessionCreate(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	next := r.FormValue("next")

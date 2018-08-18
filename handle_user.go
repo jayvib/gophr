@@ -5,11 +5,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func HandleNewUserPage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleNewUserPage(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, r, "users/new", nil)
 }
 
-func HandleCreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := NewUser(
 		r.FormValue("username"),
 		r.FormValue("email"),
@@ -31,14 +31,14 @@ func HandleLoginUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params
 	
 }
 
-func HandleUserEdit(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleUserEdit(w http.ResponseWriter, r *http.Request) {
 	user := RequestUser(r)
 	RenderTemplate(w, r, "users/edit", map[string]interface{}{
 		"User": user,
 	})
 }
 
-func HandleUserUpdate(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	currentUser := RequestUser(r)
 	email := r.FormValue("email")
 	currentPassword := r.FormValue("currentPassword")
@@ -59,5 +59,5 @@ func HandleUserUpdate(w http.ResponseWriter, r *http.Request, _ httprouter.Param
 	if err != nil {
 		panic(err)
 	}
-	http.Redirect(w, r, "/account?flash=User+updated", http.StatusFound)
+	http.Redirect(w, r, "/private/account?flash=User+updated", http.StatusFound)
 }

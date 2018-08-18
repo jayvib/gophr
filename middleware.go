@@ -2,41 +2,92 @@ package main
 
 import (
 	"net/http"
-	"io"
 	"fmt"
-	"time"
+	"net/url"
+	"log"
 )
 
-type decoratorHandler func(handler http.Handler) http.Handler
-type decoratorHandlerFunc func(handlerFunc http.HandlerFunc) http.HandlerFunc
+type Adapter func(handler http.Handler) http.Handler
 
-func NewMiddleware(handler http.Handler) *Middleware {
-	return &Middleware{
-		handler: handler,
-		middlewares: make([]decoratorHandler, 0),
-	}
-}
+type Middleware []http.Handler
 
-type Middleware struct {
-	handler http.Handler
-	middlewares []decoratorHandler
-}
-
-func (m *Middleware) Add(mw ...decoratorHandler) {
-	m.middlewares = append(m.middlewares, mw...)
+func (m *Middleware) Add(handler http.Handler) {
+	*m = append(*m, handler)
 }
 
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	for _, mw := range m.middlewares {
-		m.handler = mw(m.handler)
+	mw := NewMiddlewareResponseWriter(w)
+	for _, handler := range *m {
+		fmt.Println("Running handler")
+		handler.ServeHTTP(mw, r)
+		if mw.written {
+			fmt.Println("written")
+			return
+		}
 	}
-	m.handler.ServeHTTP(w, r)
+	fmt.Fprintln(w, "some thing bad happen")
 }
 
-func LoggingMiddleware(writer io.Writer) func(handler http.Handler) http.Handler {
-	return func(handler http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-			fmt.Fprintf(writer, "METHOD: %s | URL: %s | Timestamp: %v\n", r.Method, r.URL.Path, time.Now())
-		})
+type MiddlewareResponseWriter struct {
+	http.ResponseWriter
+	written bool
+}
+
+func (w *MiddlewareResponseWriter) Write(bytes []byte) (int ,error) {
+	w.written = true
+	n, err := w.ResponseWriter.Write(bytes)
+	return n, err
+}
+
+func (w *MiddlewareResponseWriter) WriteHeader(code int) {
+	w.written = true
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func NewMiddlewareResponseWriter(w http.ResponseWriter) *MiddlewareResponseWriter {
+	return &MiddlewareResponseWriter{
+		ResponseWriter: w,
 	}
+}
+
+func AuthMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if RequestUser(r) != nil {
+			fmt.Println("has valid session")
+			h.ServeHTTP(w, r)
+			return
+		}
+		fmt.Println("need to login!")
+		query := url.Values{}
+		query.Add("next", url.QueryEscape(r.URL.String()))
+		http.Redirect(w, r, "/login?"+query.Encode(), http.StatusFound)
+	})
+}
+
+func AuthMiddleware2(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	if RequestUser(r) != nil {
+		fmt.Println("has valid session")
+		next.ServeHTTP(w, r)
+		return
+	}
+	fmt.Println("need to login!")
+	query := url.Values{}
+	query.Add("next", url.QueryEscape(r.URL.String()))
+	http.Redirect(w, r, "/login?"+query.Encode(), http.StatusFound)
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Do stuff here
+		log.Println(r.RequestURI)
+		// Call the next handler, which can be another middleware in the chain, or the final handler.
+		next.ServeHTTP(w, r)
+	})
+}
+
+func Adapt(h http.Handler, adapters ...Adapter) http.Handler {
+	for _, a := range adapters {
+		h = a(h)
+	}
+	return h
 }

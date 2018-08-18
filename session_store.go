@@ -33,7 +33,7 @@ func NewFileSessionStore(filename string) (*FileSessionStore, error) {
 		}
 		return nil, err
 	}
-	err = json.Unmarshal(contents, store)
+	err = json.Unmarshal(contents, &store.Sessions)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="/assets/css/bootstrap.css">
+</head>
+<body>
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">Gophr</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <p class="navbar-text navbar-right">
+                    
+                        <a href="/images/new" class="btn btn-primary">Add Image</a>
+                        <a href="/account" class="navbar-link">Account</a>
+                        <a href="/sign-out" class="navbar-link">Sign Out</a>
+                    
+                </p>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        
+        
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>Add An Image</h1>
+            
+            <form action="/images/new" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="imageUrl">Upload from URL</label>
+                    <input type="text" name="url" id="imageUrl" value="" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="imageUpload">Upload from file</label>
+                    <input type="file" name="file" id="imageUpload" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" class="form-control">
+                        
+                    </textarea>
+                </div>
+                <input type="submit" value="Add" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+
+    </div>
+</body>
+</html>

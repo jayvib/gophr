@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-)
+		"github.com/gorilla/mux"
+	)
 
 var (
 	commitID string
@@ -52,25 +53,25 @@ func init() {
 func main() {
 	flag.Parse()
 
-	router := NewRouter()
-	router.Handle("GET", "/", HandleHome)
-	router.Handle("GET", "/register", HandleNewUserPage) // user to display the registration page
-	router.Handle("POST", "/register", HandleCreateUser) // use to register the user to the system
-	router.Handle("GET", "/login", HandleNewSessionPage)
-	router.Handle("POST", "/login", HandleSessionCreate)
-	router.Handle("GET", "/sign-out", HandleSessionDestroy)
-	router.Handle("GET", "/account", HandleUserEdit)
-	router.Handle("POST", "/account", HandleUserUpdate)
-	router.Handle("GET", "/images/new", HandleImageNew)
-	router.Handle("POST", "/images/new", HandleImageCreate)
-	router.ServeFiles("/assets/*filepath", http.Dir("assets/"))
+	router := mux.NewRouter()
+	publicRouter := router.PathPrefix("/").Subrouter()
+	privateRouter := router.PathPrefix("/private/").Subrouter()
 
-	// secureRouter := NewRouter()
-	// secureRouter.Handle("GET", "/sign-out", HandleSessionDestroy)
-	// securedMiddleware := NewMiddleware(
-	// 	http.HandleFunc(RequireLogin),
-	// )
+	publicRouter.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
+	publicRouter.HandleFunc("/register", HandleNewUserPage).Methods("GET") // user to display the registration page
+	publicRouter.HandleFunc( "/register", HandleCreateUser).Methods("POST") // use to register the user to the system
+	publicRouter.HandleFunc( "/", HandleHome).Methods("GET")
+	publicRouter.HandleFunc( "/login", HandleNewSessionPage).Methods("GET")
+	publicRouter.HandleFunc( "/login", HandleSessionCreate).Methods("POST")
 
+	privateRouter.HandleFunc("/sign-out", HandleSessionDestroy).Methods("GET")
+	privateRouter.HandleFunc("/account", HandleUserEdit).Methods("GET")
+	privateRouter.HandleFunc("/account", HandleUserUpdate).Methods("POST")
+	privateRouter.HandleFunc("/images/new", HandleImageNew).Methods("GET")
+	privateRouter.HandleFunc("/images/new", HandleImageCreate).Methods("POST")
+	privateRouter.Use(AuthMiddleware)
+
+	router.Use(loggingMiddleware)
 	log.Printf("Serving gophr at port %s\n", PORT)
 	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), router)
 	if err != nil {

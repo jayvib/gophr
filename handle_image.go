@@ -2,14 +2,13 @@ package main
 
 import (
 	"net/http"
-	"github.com/julienschmidt/httprouter"
-)
+	)
 
-func HandleImageNew(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleImageNew(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, r, "images/new", nil)
 }
 
-func HandleImageCreate(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func HandleImageCreate(w http.ResponseWriter, r *http.Request) {
 	if r.FormValue("url") != "" {
 		HandleImageCreateFromURL(w, r)
 	} else {
@@ -21,6 +20,7 @@ func HandleImageCreateFromURL(w http.ResponseWriter, r *http.Request) {
 	user := RequestUser(r)
 	if user == nil {
 		http.Redirect(w, r, "/login", http.StatusFound)
+		return
 	}
 	image := NewImage(user)
 	image.Description = r.FormValue("description")
@@ -42,6 +42,7 @@ func HandleImageCreateFromFile(w http.ResponseWriter, r *http.Request) {
 	user := RequestUser(r)
 	if user == nil {
 		http.Redirect(w, r, "/login", http.StatusFound)
+		return
 	}
 	image := NewImage(user)
 	file, header, err := r.FormFile("file")
