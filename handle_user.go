@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"github.com/julienschmidt/httprouter"
 )
 
 func HandleNewUserPage(w http.ResponseWriter, r *http.Request) {
@@ -19,16 +18,12 @@ func HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 		if IsValidationError(err) {
 			RenderTemplate(w, r, "users/new", map[string]interface{}{
 				"Error": err,
-				"User": user,
+				"User":  user,
 			})
 		}
 		panic(err)
 	}
 	http.Redirect(w, r, "/?flash=User+created", http.StatusFound)
-}
-
-func HandleLoginUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
-	
 }
 
 func HandleUserEdit(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +44,7 @@ func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		if IsValidationError(err) {
 			RenderTemplate(w, r, "users/edit", map[string]interface{}{
 				"Error": err,
-				"User": user,
+				"User":  user,
 			})
 			return
 		}
