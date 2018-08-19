@@ -1,29 +1,29 @@
 package main
 
 import (
-	"time"
-	"net/http"
-	"mime"
-	"path/filepath"
-	"os"
 	"io"
+	"mime"
 	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 const imageIDLength = 10
 
 func NewImage(user *User) *Image {
 	return &Image{
-		ID: GenerateID("img", imageIDLength),
-		UserID: user.ID,
+		ID:        GenerateID("img", imageIDLength),
+		UserID:    user.ID,
 		CreatedAt: time.Now(),
 	}
 }
 
 var mimeExtensions = map[string]string{
-	"image/png": ".png",
+	"image/png":  ".png",
 	"image/jpeg": ".jpg",
-	"image/gif": ".gif",
+	"image/gif":  ".gif",
 }
 
 type Image struct {
@@ -83,6 +83,8 @@ func (i *Image) CreateFromURL(imageURL string) error {
 	return globalImageStore.Save(i)
 }
 
+// CreateFromFile get the file uploaded by the user in a multipart form and save the file info
+// to the database and file to assets/data/images.
 func (i *Image) CreateFromFile(file multipart.File, headers *multipart.FileHeader) error {
 	i.Name = headers.Filename
 	i.Location = i.ID + filepath.Ext(i.Name)

@@ -58,18 +58,23 @@ func main() {
 	publicRouter := router.PathPrefix("/").Subrouter()
 
 	// TODO: Find a way to separate the routes that need authentication
+	// these are the endpoints that need authentication
 	publicRouter.HandleFunc("/sign-out", AuthMiddleware(HandleSessionDestroy)).Methods("GET")
 	publicRouter.HandleFunc("/account", AuthMiddleware(HandleUserEdit)).Methods("GET")
 	publicRouter.HandleFunc("/account", AuthMiddleware(HandleUserUpdate)).Methods("POST")
 	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageNew)).Methods("GET")
 	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageCreate)).Methods("POST")
+	publicRouter.HandleFunc("/image/{imageID}", AuthMiddleware(HandleImageShow)).Methods(http.MethodGet)
 
-	publicRouter.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
 	publicRouter.HandleFunc("/register", HandleNewUserPage).Methods("GET") // user to display the registration page
 	publicRouter.HandleFunc("/register", HandleCreateUser).Methods("POST") // use to register the user to the system
 	publicRouter.HandleFunc("/", HandleHome).Methods("GET")
 	publicRouter.HandleFunc("/login", HandleNewSessionPage).Methods("GET")
 	publicRouter.HandleFunc("/login", HandleSessionCreate).Methods("POST")
+
+	// File Servers
+	publicRouter.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
+	publicRouter.PathPrefix("/im/").Handler(http.StripPrefix("/im/", http.FileServer(http.Dir("data/images"))))
 
 	router.Use(loggingMiddleware)
 	log.Printf("Serving gophr at port %s\n", PORT)

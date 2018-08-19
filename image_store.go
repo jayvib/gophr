@@ -79,6 +79,7 @@ func (store *DBImageStore) FindAll(offset int) ([]Image, error) {
 		err = rows.Scan(
 			&image.ID,
 			&image.UserID,
+			&image.Name,
 			&image.Location,
 			&image.Description,
 			&image.Size,

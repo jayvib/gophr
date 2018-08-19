@@ -54,5 +54,5 @@ func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	http.Redirect(w, r, "/private/account?flash=User+updated", http.StatusFound)
+	http.Redirect(w, r, "/account?flash=User+updated", http.StatusFound)
 }
