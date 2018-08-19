@@ -122,13 +122,14 @@ func UpdateUser(user *User, email, currentPassword, newPassword string) (User, e
 
 // AvatarURL returns the equivalent avatar url from the user.
 func (u *User) AvatarURL() string {
-	return fmt.Sprintf(
-		"//www.gravatar.com/avatar/%x",
+	url := fmt.Sprintf(
+		"https://www.gravatar.com/avatar/%x",
 		md5.Sum([]byte(u.Email)),
 	)
+	return url
 }
 
-// ImageRoute returns the endpoint of the user
+// ImageRoute returns the user equivalent account endpoint
 func (u *User) ImageRoute() string {
 	return "/user/" + u.ID
 }

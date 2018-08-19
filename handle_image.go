@@ -78,6 +78,7 @@ func HandleImageCreateFromFile(w http.ResponseWriter, r *http.Request) {
 func HandleImageShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	imageID := vars["imageID"]
+	// fmt.Println("Image ID: ", imageID)
 	image, err := globalImageStore.Find(imageID)
 	if err != nil {
 		panic(err)
@@ -94,7 +95,8 @@ func HandleImageShow(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		panic(fmt.Errorf("Could not find user %s", image.UserID))
 	}
-	RenderTemplate(w, r, "image/show", map[string]interface{}{
+	fmt.Printf("Gravatar URL: %s\n", user.AvatarURL())
+	RenderTemplate(w, r, "images/show", map[string]interface{}{
 		"Image": image,
 		"User":  user,
 	})
