@@ -1,6 +1,11 @@
 package main
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"crypto/md5"
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 const (
 	passwordLength = 8
@@ -113,4 +118,17 @@ func UpdateUser(user *User, email, currentPassword, newPassword string) (User, e
 	}
 	user.HashedPassword = string(hashedPassword)
 	return out, nil
+}
+
+// AvatarURL returns the equivalent avatar url from the user.
+func (u *User) AvatarURL() string {
+	return fmt.Sprintf(
+		"//www.gravatar.com/avatar/%x",
+		md5.Sum([]byte(u.Email)),
+	)
+}
+
+// ImageRoute returns the endpoint of the user
+func (u *User) ImageRoute() string {
+	return "/user/" + u.ID
 }
