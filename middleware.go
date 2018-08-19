@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
 	"fmt"
-	"net/url"
 	"log"
+	"net/http"
+	"net/url"
 )
 
 type Adapter func(handler http.Handler) http.Handler
@@ -33,7 +33,7 @@ type MiddlewareResponseWriter struct {
 	written bool
 }
 
-func (w *MiddlewareResponseWriter) Write(bytes []byte) (int ,error) {
+func (w *MiddlewareResponseWriter) Write(bytes []byte) (int, error) {
 	w.written = true
 	n, err := w.ResponseWriter.Write(bytes)
 	return n, err
@@ -50,7 +50,7 @@ func NewMiddlewareResponseWriter(w http.ResponseWriter) *MiddlewareResponseWrite
 	}
 }
 
-func AuthMiddleware(h http.Handler) http.Handler {
+func AuthMiddleware(h http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if RequestUser(r) != nil {
 			fmt.Println("has valid session")

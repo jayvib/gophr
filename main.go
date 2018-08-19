@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"github.com/gorilla/mux"
-	)
+)
 
 var (
 	commitID string
@@ -55,21 +56,20 @@ func main() {
 
 	router := mux.NewRouter()
 	publicRouter := router.PathPrefix("/").Subrouter()
-	privateRouter := router.PathPrefix("/private/").Subrouter()
+
+	// TODO: Find a way to separate the routes that need authentication
+	publicRouter.HandleFunc("/sign-out", AuthMiddleware(HandleSessionDestroy)).Methods("GET")
+	publicRouter.HandleFunc("/account", AuthMiddleware(HandleUserEdit)).Methods("GET")
+	publicRouter.HandleFunc("/account", AuthMiddleware(HandleUserUpdate)).Methods("POST")
+	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageNew)).Methods("GET")
+	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageCreate)).Methods("POST")
 
 	publicRouter.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets/"))))
 	publicRouter.HandleFunc("/register", HandleNewUserPage).Methods("GET") // user to display the registration page
-	publicRouter.HandleFunc( "/register", HandleCreateUser).Methods("POST") // use to register the user to the system
-	publicRouter.HandleFunc( "/", HandleHome).Methods("GET")
-	publicRouter.HandleFunc( "/login", HandleNewSessionPage).Methods("GET")
-	publicRouter.HandleFunc( "/login", HandleSessionCreate).Methods("POST")
-
-	privateRouter.HandleFunc("/sign-out", HandleSessionDestroy).Methods("GET")
-	privateRouter.HandleFunc("/account", HandleUserEdit).Methods("GET")
-	privateRouter.HandleFunc("/account", HandleUserUpdate).Methods("POST")
-	privateRouter.HandleFunc("/images/new", HandleImageNew).Methods("GET")
-	privateRouter.HandleFunc("/images/new", HandleImageCreate).Methods("POST")
-	privateRouter.Use(AuthMiddleware)
+	publicRouter.HandleFunc("/register", HandleCreateUser).Methods("POST") // use to register the user to the system
+	publicRouter.HandleFunc("/", HandleHome).Methods("GET")
+	publicRouter.HandleFunc("/login", HandleNewSessionPage).Methods("GET")
+	publicRouter.HandleFunc("/login", HandleSessionCreate).Methods("POST")
 
 	router.Use(loggingMiddleware)
 	log.Printf("Serving gophr at port %s\n", PORT)

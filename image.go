@@ -36,6 +36,14 @@ type Image struct {
 	Description string
 }
 
+func (i *Image) StaticRoute() string {
+	return "/im/" + i.Location
+}
+
+func (i *Image) ShowRoute() string {
+	return "/image/" + i.ID
+}
+
 type ImageStore interface {
 	Save(image *Image) error
 	Find(id string) (*Image, error)
