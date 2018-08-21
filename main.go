@@ -65,6 +65,7 @@ func main() {
 	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageNew)).Methods("GET")
 	publicRouter.HandleFunc("/images/new", AuthMiddleware(HandleImageCreate)).Methods("POST")
 	publicRouter.HandleFunc("/image/{imageID}", AuthMiddleware(HandleImageShow)).Methods(http.MethodGet)
+	publicRouter.HandleFunc("/user/{userID}", AuthMiddleware(HandleUserShow)).Methods(http.MethodGet)
 
 	publicRouter.HandleFunc("/register", HandleNewUserPage).Methods("GET") // user to display the registration page
 	publicRouter.HandleFunc("/register", HandleCreateUser).Methods("POST") // use to register the user to the system

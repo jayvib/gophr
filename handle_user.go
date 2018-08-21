@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func HandleNewUserPage(w http.ResponseWriter, r *http.Request) {
@@ -55,4 +57,27 @@ func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	http.Redirect(w, r, "/account?flash=User+updated", http.StatusFound)
+}
+
+func HandleUserShow(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userId := vars["userID"]
+
+	user, err := globalUserStore.Find(userId)
+	if err != nil {
+		panic(err)
+	}
+	if user == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	images, err := globalImageStore.FindAllByUser(user, 0)
+	if err != nil {
+		panic(err)
+	}
+	RenderTemplate(w, r, "users/show", map[string]interface{}{
+		"Images": images,
+		"User":   user,
+	})
 }

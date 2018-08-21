@@ -1,16 +1,28 @@
 package main
 
 import (
+	"image"
 	"io"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
+
+	"github.com/disintegration/imaging"
 )
 
-const imageIDLength = 10
+const (
+	imageIDLength  = 10
+	widthThumbnail = 400
+	widthPreview   = 800
+)
+
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 
 func NewImage(user *User) *Image {
 	return &Image{
@@ -42,6 +54,45 @@ func (i *Image) StaticRoute() string {
 
 func (i *Image) ShowRoute() string {
 	return "/image/" + i.ID
+}
+
+// CreateResizedImages resizes the image to preview and thumbnail size.
+func (i *Image) CreateResizedImages() error {
+	srcImage, err := imaging.Open("./data/images/" + i.Location)
+	if err != nil {
+		return err
+	}
+
+	errChan := make(chan error)
+	go i.resizePreview(errChan, srcImage)
+	go i.resizeThumbnail(errChan, srcImage)
+
+	for i := 0; i < 2; i++ {
+		e := <-errChan
+		if e == nil {
+			err = e
+		}
+	}
+
+	return err
+}
+
+// resizePreview resizes the image to be use for preview
+func (i *Image) resizePreview(errorChan chan error, srcImage image.Image) {
+	size := srcImage.Bounds().Size()
+	ratio := float64(size.Y) / float64(size.X)
+	targetHeight := int(float64(widthPreview) * ratio)
+	dstImage := imaging.Resize(srcImage, widthPreview, targetHeight, imaging.Lanczos)
+	destination := "./data/images/preview/" + i.Location
+	errorChan <- imaging.Save(dstImage, destination)
+
+}
+
+// resizeThumbnail resize the image to be use for thumbnails
+func (i *Image) resizeThumbnail(errorChan chan error, srcImage image.Image) {
+	dstImage := imaging.Thumbnail(srcImage, widthThumbnail, widthThumbnail, imaging.Lanczos)
+	destination := "./data/images/thumbails/" + i.Location
+	errorChan <- imaging.Save(dstImage, destination)
 }
 
 type ImageStore interface {
@@ -80,6 +131,10 @@ func (i *Image) CreateFromURL(imageURL string) error {
 		return err
 	}
 	i.Size = size
+	err = i.CreateResizedImages()
+	if err != nil {
+		return err
+	}
 	return globalImageStore.Save(i)
 }
 
