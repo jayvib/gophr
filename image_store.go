@@ -124,6 +124,7 @@ func (store *DBImageStore) FindAllByUser(user *User, offset int) ([]Image, error
 		if err != nil {
 			return nil, err
 		}
+		images = append(images, image)
 	}
 	return images, nil
 }

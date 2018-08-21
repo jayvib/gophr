@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -61,9 +62,9 @@ func HandleUserUpdate(w http.ResponseWriter, r *http.Request) {
 
 func HandleUserShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userId := vars["userID"]
-
-	user, err := globalUserStore.Find(userId)
+	userID := vars["userID"]
+	fmt.Println("UserID:", userID)
+	user, err := globalUserStore.Find(userID)
 	if err != nil {
 		panic(err)
 	}
@@ -76,6 +77,11 @@ func HandleUserShow(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(user.Username)
+	fmt.Println(user.AvatarURL())
+	fmt.Println(user.ImageRoute())
+	fmt.Println("Images found: ", len(images))
+
 	RenderTemplate(w, r, "users/show", map[string]interface{}{
 		"Images": images,
 		"User":   user,

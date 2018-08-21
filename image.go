@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"io"
 	"mime"
@@ -79,6 +80,7 @@ func (i *Image) CreateResizedImages() error {
 
 // resizePreview resizes the image to be use for preview
 func (i *Image) resizePreview(errorChan chan error, srcImage image.Image) {
+	fmt.Println("Resizing for preview image")
 	size := srcImage.Bounds().Size()
 	ratio := float64(size.Y) / float64(size.X)
 	targetHeight := int(float64(widthPreview) * ratio)
@@ -90,8 +92,9 @@ func (i *Image) resizePreview(errorChan chan error, srcImage image.Image) {
 
 // resizeThumbnail resize the image to be use for thumbnails
 func (i *Image) resizeThumbnail(errorChan chan error, srcImage image.Image) {
+	fmt.Println("Resizing fore thumbnail image")
 	dstImage := imaging.Thumbnail(srcImage, widthThumbnail, widthThumbnail, imaging.Lanczos)
-	destination := "./data/images/thumbails/" + i.Location
+	destination := "./data/images/thumbnail/" + i.Location
 	errorChan <- imaging.Save(dstImage, destination)
 }
 
@@ -153,5 +156,9 @@ func (i *Image) CreateFromFile(file multipart.File, headers *multipart.FileHeade
 		return err
 	}
 	i.Size = size
+	err = i.CreateResizedImages()
+	if err != nil {
+		return err
+	}
 	return globalImageStore.Save(i)
 }
